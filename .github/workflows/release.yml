@@ -1,0 +1,42 @@
+name: Build & Release Organizer
+
+on:
+  push:
+    tags:
+      - "v*.*.*"   # Runs only when you push a version tag like v1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Build binary
+        run: |
+          mkdir -p dist
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer-${{ matrix.goos }}-${{ matrix.goarch }}.exe
+          else
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer-${{ matrix.goos }}-${{ matrix.goarch }}
+          fi
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

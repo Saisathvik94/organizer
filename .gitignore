@@ -1,0 +1,8 @@
+# Binaries
+/bin/
+/*.exe
+/*.out
+
+# OS / Editor files
+*.DS_Store
+*.swp
