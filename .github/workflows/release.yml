@@ -3,7 +3,7 @@ name: Build & Release Organizer
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v*.*.*"   # Runs only when you push a version tag like v1.0.0
 
 permissions:
   contents: write
@@ -15,11 +15,11 @@ jobs:
 
     strategy:
       matrix:
-        goos: [linux, windows, darwin]
-        goarch: [amd64]
+        os: [linux, windows, darwin]
+        arch: [amd64]
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Go
@@ -27,19 +27,19 @@ jobs:
         with:
           go-version: "1.22"
 
-      - name: Go module tidy
-        run: go mod tidy
-
       - name: Build binary
         run: |
           mkdir -p dist
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer-${{ matrix.goos }}-${{ matrix.goarch }}.exe
+
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
+            go build -o dist/organizer-${{ matrix.os }}-${{ matrix.arch }}.exe
           else
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer-${{ matrix.goos }}-${{ matrix.goarch }}
+            GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
+            go build -o dist/organizer-${{ matrix.os }}-${{ matrix.arch }}
           fi
 
-      - name: Upload release assets
+      - name: Upload binaries to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
