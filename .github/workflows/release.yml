@@ -3,7 +3,7 @@ name: Build & Release Organizer
 on:
   push:
     tags:
-      - "v*.*.*"   # Trigger on version tags like v1.0.0
+      - "v*.*.*"   # Runs only when you push a version tag like v1.0.0
 
 permissions:
   contents: write
@@ -13,21 +13,13 @@ jobs:
     name: Build binaries
     strategy:
       matrix:
-        include:
-          - goos: windows
-            goarch: amd64
-            runner: windows-latest
-          - goos: linux
-            goarch: amd64
-            runner: ubuntu-latest
-          - goos: darwin
-            goarch: amd64
-            runner: macos-latest
+        os: [linux, windows, darwin]
+        arch: [amd64]
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.os == 'darwin' && 'macos-latest' || 'ubuntu-latest' }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Go
@@ -38,13 +30,20 @@ jobs:
       - name: Build binary
         run: |
           mkdir -p dist
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -v -o dist/organizer.exe
+          echo "Building ${{ matrix.os }} binary..."
+          
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            BIN_NAME="organizer.exe"
+          elif [ "${{ matrix.os }}" = "linux" ]; then
+            BIN_NAME="organizer-linux-${{ matrix.arch }}"
           else
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -v -o dist/organizer
+            BIN_NAME="organizer-darwin-${{ matrix.arch }}"
           fi
 
-      - name: Upload release assets
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o dist/$BIN_NAME
+          echo "Built $BIN_NAME"
+
+      - name: Upload binaries to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
