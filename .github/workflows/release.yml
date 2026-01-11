@@ -3,7 +3,7 @@ name: Build & Release Organizer
 on:
   push:
     tags:
-      - "v*.*.*"   # Runs only when you push a version tag like v1.0.0
+      - "v*.*.*"   # Runs on version tags like v1.0.0
 
 permissions:
   contents: write
@@ -15,31 +15,34 @@ jobs:
 
     strategy:
       matrix:
-        os: [linux, windows, darwin]
-        arch: [amd64]
+        goos: [linux, windows, darwin]
+        goarch: [amd64]
 
     steps:
-      - name: Checkout repository
+      # Step 1: Checkout the code
+      - name: Checkout code
         uses: actions/checkout@v4
 
+      # Step 2: Setup Go
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.22"
 
+      # Step 3: Build binaries
       - name: Build binary
         run: |
           mkdir -p dist
-
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
-            go build -o dist/organizer-${{ matrix.os }}-${{ matrix.arch }}.exe
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            # Windows binary always named organizer.exe
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer.exe
           else
-            GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
-            go build -o dist/organizer-${{ matrix.os }}-${{ matrix.arch }}
+            # Other OS binaries keep OS-ARCH suffix
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer-${{ matrix.goos }}-${{ matrix.goarch }}
           fi
 
-      - name: Upload binaries to GitHub Release
+      # Step 4: Upload binaries to GitHub release
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
