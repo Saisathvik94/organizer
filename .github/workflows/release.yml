@@ -3,7 +3,7 @@ name: Build & Release Organizer
 on:
   push:
     tags:
-      - "v*.*.*"   # Runs only when you push a version tag like v1.0.0
+      - "v*.*.*"   # Trigger on version tags like v1.0.0
 
 permissions:
   contents: write
@@ -11,12 +11,20 @@ permissions:
 jobs:
   build:
     name: Build binaries
-    runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        goos: [windows, linux, darwin]
-        goarch: [amd64]
+        include:
+          - goos: windows
+            goarch: amd64
+            runner: windows-latest
+          - goos: linux
+            goarch: amd64
+            runner: ubuntu-latest
+          - goos: darwin
+            goarch: amd64
+            runner: macos-latest
+
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Checkout code
@@ -31,11 +39,9 @@ jobs:
         run: |
           mkdir -p dist
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            # Windows executable with .exe
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer.exe
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -v -o dist/organizer.exe
           else
-            # Linux/macOS executable named 'organizer'
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/organizer
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -v -o dist/organizer
           fi
 
       - name: Upload release assets
