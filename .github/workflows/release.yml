@@ -3,7 +3,7 @@ name: Build & Release Organizer
 on:
   push:
     tags:
-      - "v*.*.*"   # Runs only when you push a version tag like v1.0.0
+      - "v*.*.*"
 
 permissions:
   contents: write
@@ -26,6 +26,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "1.22"
+
+      - name: Go module tidy
+        run: go mod tidy
 
       - name: Build binary
         run: |

@@ -1,17 +1,17 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
-	"log"
 	"strings"
-	"flag"
 )
 
-func checkPathexist(arg string) bool{
- 	_, err := os.Stat(arg)
- 	return err==nil
+func checkPathexist(arg string) bool {
+	_, err := os.Stat(arg)
+	return err == nil
 }
 
 func normalizePath(arg string) (string, error) {
@@ -27,8 +27,7 @@ func normalizePath(arg string) (string, error) {
 	return absPath, nil
 }
 
-
-func main(){
+func main() {
 	// HELP Flag
 	flag.Usage = func() {
 		fmt.Println("Organizer CLI")
@@ -48,9 +47,7 @@ func main(){
 		return
 	}
 
-	arg:= args[0]
-	
-	
+	arg := args[0]
 
 	normalizedPath, err := normalizePath(arg)
 	if err != nil {
@@ -62,16 +59,16 @@ func main(){
 
 	// check existence of file
 	exists := checkPathexist(normalizedPath)
-	if !(exists){
-		log.Fatal("Path does not exist:",err)
+	if !(exists) {
+		log.Fatal("Path does not exist:", err)
 	}
 
 	info, err := os.Stat(normalizedPath)
 
-	var files [] string
+	var files []string
 	parentDir := normalizedPath
-	
-	if(info.IsDir()){
+
+	if info.IsDir() {
 		entries, err := os.ReadDir(normalizedPath)
 		if err != nil {
 			log.Fatal(err)
@@ -82,9 +79,9 @@ func main(){
 			if !(entry.IsDir()) {
 				filePath := filepath.Join(normalizedPath, entry.Name())
 				files = append(files, filePath)
-			} 
+			}
 		}
-	} else{
+	} else {
 		fmt.Println("Input is a file")
 		parentDir = filepath.Dir(normalizedPath)
 		files = append(files, normalizedPath)
@@ -121,7 +118,6 @@ func main(){
 		default:
 			category = "Others"
 		}
-
 
 		// Build folder path inside parentDir
 		folderPath := filepath.Join(parentDir, category)
