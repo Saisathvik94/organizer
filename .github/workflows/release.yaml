@@ -3,14 +3,19 @@ name: organizer
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v*.*.*"   
+
+permissions:
+  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -23,6 +28,6 @@ jobs:
           sudo mv goreleaser /usr/local/bin/
 
       - name: Run GoReleaser
-        run: goreleaser release 
+        run: goreleaser release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
