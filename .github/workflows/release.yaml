@@ -3,7 +3,7 @@ name: organizer
 on:
   push:
     tags:
-      - "v*.*.*"   # Trigger only on version tags like v1.0.0
+      - "v*.*.*"
 
 permissions:
   contents: write
@@ -11,23 +11,22 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
-      
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Important! Fetch all history and tags for GoReleaser
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.25"
 
-
       - name: Install GoReleaser
         run: |
           curl -sL https://github.com/goreleaser/goreleaser/releases/latest/download/goreleaser_Linux_x86_64.tar.gz | tar xz
-          sudo mv goreleaser /usr/local/bin/
+          sudo mv goreleaser /usr/local/bin/goreleaser
 
       - name: Run GoReleaser
         run: goreleaser release
