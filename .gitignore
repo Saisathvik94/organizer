@@ -3,6 +3,11 @@
 /*.exe
 /*.out
 
+# Generated documentation and shell completion files
+# (The ones causes "dirty state" error)
+completions/
+manpages/
+
 # OS / Editor files
 *.DS_Store
 *.swp
