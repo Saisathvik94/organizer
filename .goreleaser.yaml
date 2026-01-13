@@ -10,13 +10,13 @@ release:
 builds:
   - id: organizer
     main: ./cmd/main.go
-    binary: organizer
     goos:
       - windows
       - linux
       - darwin
     goarch:
       - amd64
+    binary: organizer    # Same binary name for all OS
 
 archives:
   - format: zip
@@ -34,3 +34,4 @@ changelog:
 
 snapshot:
   name_template: "{{ .Tag }}"
+
