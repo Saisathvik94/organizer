@@ -6,3 +6,6 @@
 # OS / Editor files
 *.DS_Store
 *.swp
+
+# environment variables
+.env
