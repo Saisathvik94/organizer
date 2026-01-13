@@ -1,3 +1,5 @@
+version: 2
+
 project_name: organizer
 
 before:
@@ -6,43 +8,45 @@ before:
 
 builds:
   - id: organizer
-    main: ./cmd/organizer/main.go
+    main: ./cmd
     binary: organizer
     env:
       - CGO_ENABLED=0
     goos:
       - linux
-      - windows
       - darwin
+      - windows
     goarch:
       - amd64
+      - arm64
     ldflags:
       - -s -w
-      - -X main.Version={{.Version}}
+      - -X main.version={{ .Version }}
+      - -X main.commit={{ .Commit }}
+      - -X main.date={{ .Date }}
 
 archives:
-  - id: organizer-archive
-    format: zip
-    name_template: >
-      organizer_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+  - id: organizer
+    builds:
+      - organizer
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
     files:
-      - LICENSE
       - README.md
-      - install.sh
-      - install.ps1
+      - LICENSE*
 
 checksum:
-  name_template: "checksums.txt"
-
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
-      - "^chore:"
+  name_template: checksums.txt
 
 release:
   github:
-    owner: Saisathvik94
+    owner: sai-sathvik
     name: organizer
+  draft: false
+  prerelease: false
+
+changelog:
+  sort: asc
