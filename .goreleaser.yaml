@@ -43,7 +43,7 @@ checksum:
 
 release:
   github:
-    owner: sai-sathvik
+    owner: Saisathvik94
     name: organizer
   draft: false
   prerelease: false
