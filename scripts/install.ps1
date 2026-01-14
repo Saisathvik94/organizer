@@ -49,7 +49,15 @@ Write-Host "🔍 Fetching latest release..."
 $Latest  = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest"
 $Version = $Latest.tag_name
 
-$ZipName = "organizer_${Version}_windows_amd64.zip"
+# =========================
+# Determine archive name
+# =========================
+if ($Version -eq "snapshot") {
+    $ZipName = "organizer_snapshot_win_amd64.zip"
+} else {
+    $ZipName = "organizer_${Version}_win_amd64.zip"
+}
+
 $Url     = "https://github.com/$Repo/releases/download/$Version/$ZipName"
 $ZipPath = Join-Path $TempDir $ZipName
 
