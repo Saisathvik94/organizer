@@ -9,7 +9,7 @@ release:
 
 builds:
   - id: organizer
-    main: ./cmd
+    main: ./cmd/main.go
     goos:
       - windows
       - linux
@@ -20,7 +20,7 @@ builds:
 
 archives:
   - format: zip
-    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os "darwin" }}macos{{ else if eq .Os "windows" }}win{{ else }}{{ .Os }}{{ end }}_{{ .Arch }}'
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: "checksums.txt"
@@ -30,4 +30,4 @@ changelog:
   sort: asc
 
 snapshot:
-  name_template: "snapshot"
+  name_template: "{{ .Tag }}-snapshot"
