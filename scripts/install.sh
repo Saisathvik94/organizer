@@ -1,10 +1,9 @@
 #!/bin/bash
-# ==============================================================================
+# ============================================================================== 
 # Installer for Organizer CLI (Linux/macOS)
-# ==============================================================================
-# Usage: sudo ./install.sh
-# ==============================================================================
-set -e
+# ============================================================================== 
+
+set -euo pipefail
 
 # CONFIG
 REPO="Saisathvik94/organizer"
@@ -43,11 +42,17 @@ echo -e "${CYAN}🚀 Installing Organizer CLI...${RESET}"
 echo -e "${YELLOW}🔍 Fetching latest release...${RESET}"
 LATEST_JSON=$(curl -s "https://api.github.com/repos/$REPO/releases/latest")
 VERSION=$(echo "$LATEST_JSON" | grep -Po '"tag_name": "\K.*?(?=")')
-ZIP_NAME="organizer_${VERSION}_linux_amd64.zip"
 
-# Adjust ZIP name for macOS
-if [[ "$(uname)" == "Darwin" ]]; then
-    ZIP_NAME="organizer_${VERSION}_darwin_amd64.zip"
+# Determine ZIP name
+if [[ "$VERSION" == "snapshot" ]]; then
+    OS_NAME=$(uname | tr '[:upper:]' '[:lower:]')
+    ZIP_NAME="organizer_snapshot_${OS_NAME}_amd64.zip"
+else
+    if [[ "$(uname)" == "Darwin" ]]; then
+        ZIP_NAME="organizer_${VERSION}_darwin_amd64.zip"
+    else
+        ZIP_NAME="organizer_${VERSION}_linux_amd64.zip"
+    fi
 fi
 
 URL="https://github.com/$REPO/releases/download/$VERSION/$ZIP_NAME"
