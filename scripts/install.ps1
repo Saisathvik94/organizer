@@ -1,6 +1,9 @@
 #Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
 
+# Force UTF-8 output for ASCII + emojis
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::UTF8
+
 # Config
 $Repo = "Saisathvik94/organizer"
 $Binary = "organizer.exe"
