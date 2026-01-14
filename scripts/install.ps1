@@ -1,4 +1,4 @@
-# Requires -RunAsAdministrator
+#Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
 
 # Config
@@ -14,8 +14,7 @@ function Show-ASCII {
 ██    ██ ██████  ██   ███ ███████ ██ ██  ██ ██   ███   █████   ██████  
 ██    ██ ██   ██ ██    ██ ██   ██ ██  ██ ██ ██  ███    ██      ██   ██ 
  ██████  ██   ██  ██████  ██   ██ ██   ████ ██ ███████ ███████ ██   ██ 
-                                                                      
-"@ 
+"@
 }
 
 function Ensure-Admin {
@@ -29,40 +28,43 @@ function Ensure-Admin {
 
 function Download-Organizer {
     param($Version)
-    $ZipName = "organizer_${Version}_windows_amd64.zip"
-    $Url = "https://github.com/$Repo/releases/download/$Version/$ZipName"
 
-    Write-Host "📦 Downloading $ZipName ..." -ForegroundColor Yellow
-
-    if (-Not (Test-Path $TempDir)) {
-        New-Item -ItemType Directory -Path $TempDir | Out-Null
+    if ($Version -eq "snapshot") {
+        $ZipName = "organizer_snapshot_win_amd64.zip"
+    } else {
+        $ZipName = "organizer_${Version}_win_amd64.zip"
     }
 
+    $Url = "https://github.com/$Repo/releases/download/$Version/$ZipName"
+    Write-Host "📦 Downloading $ZipName ..." -ForegroundColor Yellow
+
+    New-Item -ItemType Directory -Force -Path $TempDir | Out-Null
     $ZipPath = Join-Path $TempDir $ZipName
+
     Invoke-WebRequest -Uri $Url -OutFile $ZipPath
     return $ZipPath
 }
 
 function Install-Organizer {
     param($ZipPath)
-    
-    # Extract zip
+
     Write-Host "📂 Extracting archive ..." -ForegroundColor Yellow
     Expand-Archive -LiteralPath $ZipPath -DestinationPath $TempDir -Force
 
-    # Clean old install
+    $ExtractedBinary = Join-Path $TempDir $Binary
+    if (-not (Test-Path $ExtractedBinary)) {
+        Write-Error "❌ Organizer binary not found after extraction"
+        exit 1
+    }
+
     if (Test-Path "$InstallDir\$Binary") {
         Write-Host "🧹 Removing existing organizer ..." -ForegroundColor Yellow
         Remove-Item "$InstallDir\$Binary" -Force
     }
 
-    # Create install directory
     New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+    Move-Item $ExtractedBinary $InstallDir -Force
 
-    # Move binary
-    Move-Item (Join-Path $TempDir $Binary) $InstallDir -Force
-
-    # Add to PATH (only if not present)
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
     if ($currentPath -notlike "*$InstallDir*") {
         [Environment]::SetEnvironmentVariable(
@@ -72,7 +74,6 @@ function Install-Organizer {
         )
     }
 
-    # Cleanup temp
     Remove-Item $TempDir -Recurse -Force
 
     Write-Host "✅ Organizer installed successfully!" -ForegroundColor Green
@@ -83,7 +84,6 @@ function Install-Organizer {
 Ensure-Admin
 Show-ASCII
 
-# Get latest release version
 $Latest = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest"
 $Version = $Latest.tag_name
 
