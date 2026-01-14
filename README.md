@@ -52,6 +52,7 @@ Just run one command and your messy  folder becomes clean ✨
 ```
 iwr https://raw.githubusercontent.com/Saisathvik94/organizer/main/scripts/install.ps1 | iex
 ```
+> **Important :** Make sure to run the command as an `administrator` using Powershell.
 
 **For Linux/macos:**
 
