@@ -47,37 +47,29 @@ Just run one command and your messy  folder becomes clean ✨
 
 ## 🛠️ Installation
 
-**✅ Option 1: Install using Go (Recommended)**
-
-- Go must be installed (v1.20+)
+**For Windows:**
 
 ```
-go install https://github.com/Saisathvik94/organizer@latest
-
+iwr https://raw.githubusercontent.com/Saisathvik94/organizer/main/scripts/install.ps1 | iex
 ```
 
-- Make sure $GOPATH/bin is in your PATH.
+**For Linux/macos:**
 
-**Verify installation:**
-- organizer --help
-
-**✅ Option 2: Download Prebuilt Binary (No Go Required)**
-
-- Go to GitHub Releases
-
-- Download the binary for your OS
-
-- Add it to your system PATH
-
-Then run:
 ```
-organizer <path>
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/Saisathvik94/organizer/main/scripts/install.sh)"
 ```
+---
 
 ## ▶️ Usage
-🔹 Organize a directory
+**🔹 Organize a directory**
+```
 organizer ~/Downloads
+```
 
+**🔹 Dry Run ( preview changes without moving files )**
+```
+organizer ~/Downloads --dry-run
+```
 
 ## 📁 Result:
 ```
@@ -89,17 +81,20 @@ Downloads/
  ├── Others/
 ```
 
-### 🔹 Organize a single file**
-
+**🔹 Organize a single file**
+```
 organizer ~/Downloads/image.png
+```
 
+**🔹 Dry Run ( preview changes without moving file )**
+```
+organizer ~/Downloads/image.png --dry-run
+```
 
 **Result:**
 
 Downloads/Images/image.png
 
-### 🔹 Windows example
-organizer C:\Users\<username>\Downloads
 
 ## 🧠 How It Works
 
@@ -139,18 +134,22 @@ cd organizer
 
 **Run locally:**
 
-go run main.go <path>
+go run ./cmd/main.go
 
 
 **Build binary:**
+```
+# Linux/macOS:
+go build -o organizer ./cmd/main.go
 
-go build -o organizer
+# Windows:
+go build -o organizer.exe ./cmd/main.go
+```
+
 
 ## 🧩 Future Improvements
 
 - --recursive flag
-
-- --dry-run mode
 
 - Configurable categories
 
@@ -171,7 +170,7 @@ Open a PR
 
 📜 License
 
-MIT License
+## ⚖ MIT License
 Free to use, modify, and distribute.
 
 ## ⭐ Support
