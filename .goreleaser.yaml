@@ -9,21 +9,18 @@ release:
 
 builds:
   - id: organizer
-    main: ./cmd/main.go
+    main: ./cmd
     goos:
       - windows
       - linux
       - darwin
     goarch:
       - amd64
-    binary: organizer    # Same binary name for all OS
+    binary: organizer
 
 archives:
   - format: zip
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os "darwin" }}macos{{ else if eq .Os "windows" }}win{{ else }}{{ .Os }}{{ end }}_{{ .Arch }}'
-    files:
-      - install.ps1
-      - install.sh
 
 checksum:
   name_template: "checksums.txt"
@@ -33,5 +30,4 @@ changelog:
   sort: asc
 
 snapshot:
-  name_template: "{{ .Tag }}"
-
+  name_template: "snapshot"
