@@ -1,109 +1,91 @@
-#Requires -RunAsAdministrator
+# Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
 
-# =========================
-# CONFIG
-# =========================
-$Repo       = "Saisathvik94/organizer"
-$Binary     = "organizer.exe"
+# Config
+$Repo = "Saisathvik94/organizer"
+$Binary = "organizer.exe"
 $InstallDir = "$env:ProgramFiles\Organizer"
-$TempDir    = Join-Path $env:TEMP "organizer-install"
+$TempDir = Join-Path $env:TEMP "organizer-install"
 
-# =========================
-# FUNCTIONS
-# =========================
 function Show-ASCII {
 @"
  ██████  ██████   ██████   █████  ███    ██ ██ ███████ ███████ ██████  
 ██    ██ ██   ██ ██       ██   ██ ████   ██ ██    ███  ██      ██   ██ 
 ██    ██ ██████  ██   ███ ███████ ██ ██  ██ ██   ███   █████   ██████  
 ██    ██ ██   ██ ██    ██ ██   ██ ██  ██ ██ ██  ███    ██      ██   ██ 
- ██████  ██   ██  ██████  ██   ██ ██   ████ ██ ███████ ███████ ██   ██                                                                                                                                               
-"@
+ ██████  ██   ██  ██████  ██   ██ ██   ████ ██ ███████ ███████ ██   ██ 
+                                                                      
+"@ 
 }
 
 function Ensure-Admin {
-    $isAdmin = ([Security.Principal.WindowsPrincipal]
-        [Security.Principal.WindowsIdentity]::GetCurrent()
-    ).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
-
-    if (-not $isAdmin) {
-        Write-Error "❌ Please run this script as Administrator"
+    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
+    if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        Write-Host "❌ Please run this script as Administrator!" -ForegroundColor Red
         exit 1
     }
 }
 
-# =========================
-# START INSTALL
-# =========================
+function Download-Organizer {
+    param($Version)
+    $ZipName = "organizer_${Version}_windows_amd64.zip"
+    $Url = "https://github.com/$Repo/releases/download/$Version/$ZipName"
+
+    Write-Host "📦 Downloading $ZipName ..." -ForegroundColor Yellow
+
+    if (-Not (Test-Path $TempDir)) {
+        New-Item -ItemType Directory -Path $TempDir | Out-Null
+    }
+
+    $ZipPath = Join-Path $TempDir $ZipName
+    Invoke-WebRequest -Uri $Url -OutFile $ZipPath
+    return $ZipPath
+}
+
+function Install-Organizer {
+    param($ZipPath)
+    
+    # Extract zip
+    Write-Host "📂 Extracting archive ..." -ForegroundColor Yellow
+    Expand-Archive -LiteralPath $ZipPath -DestinationPath $TempDir -Force
+
+    # Clean old install
+    if (Test-Path "$InstallDir\$Binary") {
+        Write-Host "🧹 Removing existing organizer ..." -ForegroundColor Yellow
+        Remove-Item "$InstallDir\$Binary" -Force
+    }
+
+    # Create install directory
+    New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+
+    # Move binary
+    Move-Item (Join-Path $TempDir $Binary) $InstallDir -Force
+
+    # Add to PATH (only if not present)
+    $currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    if ($currentPath -notlike "*$InstallDir*") {
+        [Environment]::SetEnvironmentVariable(
+            "Path",
+            "$currentPath;$InstallDir",
+            "Machine"
+        )
+    }
+
+    # Cleanup temp
+    Remove-Item $TempDir -Recurse -Force
+
+    Write-Host "✅ Organizer installed successfully!" -ForegroundColor Green
+    Write-Host "🔁 Restart terminal and run: organizer --help"
+}
+
+# --- SCRIPT EXECUTION ---
 Ensure-Admin
 Show-ASCII
 
-Write-Host "🚀 Installing Organizer..." -ForegroundColor Cyan
-
-# Create temp directory
-New-Item -ItemType Directory -Force -Path $TempDir | Out-Null
-
-# Fetch latest release
-Write-Host "🔍 Fetching latest release..."
-$Latest  = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest"
+# Get latest release version
+$Latest = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest"
 $Version = $Latest.tag_name
 
-# =========================
-# Determine archive name
-# =========================
-if ($Version -eq "snapshot") {
-    $ZipName = "organizer_snapshot_win_amd64.zip"
-} else {
-    $ZipName = "organizer_${Version}_win_amd64.zip"
-}
-
-$Url     = "https://github.com/$Repo/releases/download/$Version/$ZipName"
-$ZipPath = Join-Path $TempDir $ZipName
-
-# Download
-Write-Host "📦 Downloading $ZipName"
-Invoke-WebRequest -Uri $Url -OutFile $ZipPath
-
-# Extract
-Write-Host "📂 Extracting files"
-Expand-Archive $ZipPath -DestinationPath $TempDir -Force
-
-# Validate binary
-$ExtractedBinary = Join-Path $TempDir $Binary
-if (-not (Test-Path $ExtractedBinary)) {
-    Write-Error "❌ Organizer binary not found after extraction"
-    exit 1
-}
-
-# Clean previous install
-if (Test-Path (Join-Path $InstallDir $Binary)) {
-    Write-Host "🧹 Removing existing Organizer"
-    Remove-Item (Join-Path $InstallDir $Binary) -Force
-}
-
-# Install
-New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-Move-Item $ExtractedBinary $InstallDir -Force
-
-# Add to PATH (once)
-$CurrentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
-if ($CurrentPath -notlike "*$InstallDir*") {
-    Write-Host "➕ Adding Organizer to PATH"
-    [Environment]::SetEnvironmentVariable(
-        "Path",
-        "$CurrentPath;$InstallDir",
-        "Machine"
-    )
-}
-
-# Cleanup
-Remove-Item $TempDir -Recurse -Force
-
-# Done
-Write-Host ""
-Write-Host "✅ Organizer installed successfully!" -ForegroundColor Green
-Write-Host "📌 Version: $Version"
-Write-Host "📂 Location: $InstallDir"
-Write-Host "🔁 Restart your terminal and run:"
-Write-Host "   organizer --help" -ForegroundColor Yellow
+$ZipPath = Download-Organizer -Version $Version
+Install-Organizer -ZipPath $ZipPath
