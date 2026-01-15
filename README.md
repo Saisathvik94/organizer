@@ -1,3 +1,5 @@
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Saisathvik94/organizer?sort=semver)  ![License](https://img.shields.io/github/license/Saisathvik94/organizer)  ![Downloads](https://img.shields.io/github/downloads/Saisathvik94/organizer/total)  ![Stars](https://img.shields.io/github/stars/Saisathvik94/organizer)
+
 # 🗂️ Organizer CLI
 
 A simple, fast, cross-platform command-line tool written in Go to organize files in a directory based on their file types (Images, Documents, Videos, Programs, etc.).
