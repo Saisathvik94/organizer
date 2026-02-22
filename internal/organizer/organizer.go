@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Saisathvik94/organizer/internal/fs"
 	"github.com/Saisathvik94/organizer/internal/categorize"
+	"github.com/Saisathvik94/organizer/internal/fs"
 )
 
 func Run(path string, dryRun bool) error {
@@ -26,7 +26,7 @@ func Run(path string, dryRun bool) error {
 		return err
 	}
 
-	// For summary 
+	// For summary
 	startTime := time.Now()
 	filesScanned := 0
 	filesMoved := 0

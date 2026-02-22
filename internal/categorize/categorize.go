@@ -1,13 +1,12 @@
 package categorize
 
-
 import "strings"
 
-func GetCategory(extension string) string{
+func GetCategory(extension string) string {
 	// Map extensions to categories
 	switch strings.ToLower(extension) {
 	case ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".svg", ".tiff", ".ico":
-		return  "Images"
+		return "Images"
 
 	case ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".odt":
 		return "Documents"

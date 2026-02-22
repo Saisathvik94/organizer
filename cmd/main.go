@@ -8,7 +8,6 @@ import (
 	"github.com/Saisathvik94/organizer/internal/organizer"
 )
 
-
 func main() {
 	// HELP Flag
 	flag.Usage = func() {
@@ -25,7 +24,7 @@ func main() {
 		fmt.Println("help for organizer")
 		fmt.Printf("--dry-run	")
 		fmt.Println("dry run before organizing files")
-		
+
 	}
 
 	dryRun := flag.Bool("dry-run", false, "Show what would happen without moving files")
@@ -39,7 +38,7 @@ func main() {
 	}
 
 	err := organizer.Run(args[0], *dryRun)
-	if err!=nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 }
